@@ -6,9 +6,9 @@
   @include flex(flex-start, flex-start, column);
   gap: $_padding;
   width: 95%;
-  max-width: 400px;
-  background: light-dark($light-bg-lighter, $dark-bg-lighter);
-  border: 2px solid light-dark($light-bg-lighter-2, $dark-bg-lighter-2);
+  max-width: 600px;
+  background: $dark-bg-lighter;
+  border: 2px solid $dark-bg-lighter-2;
   border-radius: $_border-radius;
   padding: $_padding;
 
@@ -16,14 +16,14 @@
     @include flex;
     width: 100%;
     height: 40px;
-    background: light-dark($light-bg-lighter-2, $dark-bg-lighter-2);
+    background: $dark-bg-lighter-2;
     border-radius: $_inner-radius;
     padding-block: $_padding;
 
     nav {
       ul {
         @include flex(flex-start);
-        padding: calc($_padding * 1.5);
+        padding-inline: calc($_padding * 1.5);
         gap: calc($_padding * 1.5);
       }
 
@@ -31,11 +31,14 @@
         @include flex;
         gap: .3rem;
         font-size: .8rem;
+        cursor: pointer;
 
-        &.active,
-        &.time-active,
-        &.rep-active {
-          color: $warning;
+        &.active {
+          color: $danger;
+        }
+
+        i {
+          font-size: .7rem;
         }
       }
     }
@@ -48,15 +51,67 @@
       height: 100%;
       width: 5px;
       border-radius: 99rem;
-      background: light-dark($light-bg-lighter, $dark-bg-lighter);
+      background: $dark-bg-lighter;
+      border: none;
     }
 
     .nav-options {
-      .time-options {
-        
-      }
       .repetitions-options {
         display: none;
+      }
+    }
+  }
+
+  .output-display {
+    $_inner-inner-radius: calc($_inner-radius - $_padding);
+
+    @include flex(flex-start);
+    gap: $_padding;
+    width: 100%;
+    height: 50px;
+    border: 2px dashed $dark-bg-lighter-2;
+    border-radius: $_inner-radius;
+    padding: $_padding;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &.overflow-right {
+      mask-image: linear-gradient(to left, transparent, hsl(0, 0%, 0%) 20%);
+    }
+
+    &.overflow-left {
+      mask-image: linear-gradient(to right, transparent, hsl(0, 0%, 0%) 20%);
+    }
+
+    &.overflow-both {
+      mask-image: linear-gradient(to right, transparent, hsl(0, 0%, 0%) 20% 80%, transparent);
+    }
+
+    .key {
+      @include flex;
+      height: 100%;
+      font-family: system-ui;
+      font-size: .85rem;
+      font-weight: 600;
+      border-radius: $_inner-inner-radius;
+      padding: $_padding;
+      color: $light-color;
+      text-transform: uppercase;
+
+      &.correct {
+        background: $success;
+      }
+
+      &.incorrect {
+        background: $warning;
+      }
+
+      &.wrong {
+        background: $danger;
       }
     }
   }

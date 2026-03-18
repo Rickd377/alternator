@@ -1,0 +1,56 @@
+.modal {
+  @include flex;
+  position: absolute;
+  inset: 0;
+  display: none;
+  background: hsla(0, 0%, 0%, .25);
+  backdrop-filter: blur(1px);
+  
+  .modal-content {
+    $_border-radius: 1.5rem;
+    $_padding: 1rem;
+    $_inner-radius: calc($_border-radius - $_padding);
+
+    @include flex(flex-start, flex-start, column);
+    gap: $_padding;
+    background: $dark-bg-lighter;
+    width: 95%;
+    max-width: 500px;
+    border: 2px solid $dark-bg-lighter-2;
+    border-radius: $_border-radius;
+    padding: $_padding;
+
+    .modal-header {
+      @include flex(space-between, flex-start);
+      width: 100%;
+
+      .close-modal-icon {
+        color: $dark-bg-lighter-3;
+        cursor: pointer;
+      }
+    }
+
+    .button-wrapper {
+      @include flex(flex-end);
+      gap: inherit;
+      width: 100%;
+
+      button {
+        border-radius: $_inner-radius;
+        padding: .65rem 1.5rem;
+        border: none;
+        font-size: .9rem;
+        transition: background .15s ease;
+
+        &.close-modal-btn {
+          background: $dark-bg-lighter-2;
+        }
+
+        &.save-settings-btn {
+          background: $success;
+          color: $light-color;
+        }
+      }
+    }
+  }
+}

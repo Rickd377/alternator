@@ -6,7 +6,7 @@
 
   <!-- Browser customization -->
   <meta name="theme-color" content="#18181B">
-  <meta name="color-scheme" content="light dark">
+  <meta name="color-scheme" content="dark">
 
   <!-- import font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +25,14 @@
   
   <div class="container">
     <div class="container-header">
+      <nav class="nav-settings">
+        <ul>
+          <li>
+            <i class="fa-solid fa-gear"></i>
+          </li>
+        </ul>
+      </nav>
+      <hr class="line">
       <nav class="nav-selections">
         <ul>
           <li class="active time">
@@ -37,11 +45,11 @@
           </li>
         </ul>
       </nav>
-      <div class="line"></div>
+      <hr class="line">
       <nav class="nav-options">
         <section class="time-options">
           <ul>
-            <li class="time-active" data-seconds="5">
+            <li class="active" data-seconds="5">
               <span>5</span>
             </li>
             <li data-seconds="10">
@@ -57,7 +65,7 @@
         </section>
         <section class="repetitions-options">
           <ul>
-            <li class="rep-active" data-reps="10">
+            <li class="active" data-reps="10">
               <span>10</span>
             </li>
             <li data-reps="25">
@@ -72,6 +80,20 @@
           </ul>
         </section>
       </nav>
+    </div>
+    <div class="output-display"></div>
+  </div>
+
+  <div class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">settings</h2>
+        <i id="closeModal" class="fa-solid fa-xmark close-modal-icon"></i>
+      </div>
+      <div class="button-wrapper">
+        <button id="closeModal" class="close-modal-btn">cancel</button>
+        <button id="saveSettings" class="save-settings-btn">save</button>
+      </div>
     </div>
   </div>
   

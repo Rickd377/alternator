@@ -13,16 +13,14 @@ html {
 body {
   min-height: 100dvh;
   line-height: 1;
-  background-color: light-dark($light-bg, $dark-bg);
+  background-color: $dark-bg;
   background-image:
-    repeating-linear-gradient(in oklch, light-dark($light-ln, $dark-ln) 0 $bg-ln-w,
-                              transparent $bg-ln-w $bg-sq-w),
-    repeating-linear-gradient(in oklch 90deg, light-dark($light-ln, $dark-ln) 0 $bg-ln-w,
-                              transparent $bg-ln-w $bg-sq-w);
+    repeating-linear-gradient(in oklch, $dark-ln 0 $bg-ln-w, transparent $bg-ln-w $bg-sq-w),
+    repeating-linear-gradient(in oklch 90deg, $dark-ln 0 $bg-ln-w, transparent $bg-ln-w $bg-sq-w);
   background-size: 100% $bg-sq-w, $bg-sq-w 100%;
   animation: scrollBg 5s linear infinite;
   font-family: "Google Sans Code", monospace;
-  // color: white;
+  color: $dark-color;
   @include flex(center, center, column);
 
   @media (prefers-reduced-motion: reduce) {
