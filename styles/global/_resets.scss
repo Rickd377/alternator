@@ -1,0 +1,80 @@
+html {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+body {
+  min-height: 100dvh;
+  line-height: 1;
+  background-color: light-dark($light-bg, $dark-bg);
+  background-image:
+    repeating-linear-gradient(in oklch, light-dark($light-ln, $dark-ln) 0 $bg-ln-w,
+                              transparent $bg-ln-w $bg-sq-w),
+    repeating-linear-gradient(in oklch 90deg, light-dark($light-ln, $dark-ln) 0 $bg-ln-w,
+                              transparent $bg-ln-w $bg-sq-w);
+  background-size: 100% $bg-sq-w, $bg-sq-w 100%;
+  animation: scrollBg 5s linear infinite;
+  font-family: "Google Sans Code", monospace;
+  // color: white;
+  @include flex(center, center, column);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  ul, ol {
+    list-style: none;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  img {
+    vertical-align: middle;
+    height: auto;
+    font-style: italic;
+    shape-margin: 1rem;
+    background: {
+      repeat: no-repeat;
+      size: cover;
+    }
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}

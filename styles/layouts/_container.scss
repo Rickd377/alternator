@@ -1,0 +1,63 @@
+.container {
+  $_border-radius: 1.5rem;
+  $_padding: .5rem;
+  $_inner-radius: calc($_border-radius - $_padding);
+
+  @include flex(flex-start, flex-start, column);
+  gap: $_padding;
+  width: 95%;
+  max-width: 400px;
+  background: light-dark($light-bg-lighter, $dark-bg-lighter);
+  border: 2px solid light-dark($light-bg-lighter-2, $dark-bg-lighter-2);
+  border-radius: $_border-radius;
+  padding: $_padding;
+
+  .container-header {
+    @include flex;
+    width: 100%;
+    height: 40px;
+    background: light-dark($light-bg-lighter-2, $dark-bg-lighter-2);
+    border-radius: $_inner-radius;
+    padding-block: $_padding;
+
+    nav {
+      ul {
+        @include flex(flex-start);
+        padding: calc($_padding * 1.5);
+        gap: calc($_padding * 1.5);
+      }
+
+      li {
+        @include flex;
+        gap: .3rem;
+        font-size: .8rem;
+
+        &.active,
+        &.time-active,
+        &.rep-active {
+          color: $warning;
+        }
+      }
+    }
+
+    .nav-selections {
+      flex: 1;
+    }
+
+    .line {
+      height: 100%;
+      width: 5px;
+      border-radius: 99rem;
+      background: light-dark($light-bg-lighter, $dark-bg-lighter);
+    }
+
+    .nav-options {
+      .time-options {
+        
+      }
+      .repetitions-options {
+        display: none;
+      }
+    }
+  }
+}

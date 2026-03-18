@@ -1,0 +1,23 @@
+$bg-sq-w: 25px;
+$bg-ln-w: 1px;
+
+$light-bg: hsl(0, 0%, 93%);
+$light-bg-lighter: hsl(from $light-bg h s calc(l + 5));
+$light-bg-lighter-2: hsl(from $light-bg h s calc(l + 10));
+$light-bg-darker: hsl(from $light-bg h s calc(l - 5));
+$light-ln: $light-bg-darker;
+
+$dark-bg: hsl(0, 0%, 7%);
+$dark-bg-lighter: hsl(from $dark-bg h s calc(l + 5));
+$dark-bg-lighter-2: hsl(from $dark-bg h s calc(l + 10));
+$dark-bg-darker: hsl(from $dark-bg h s calc(l - 5));
+$dark-ln: $dark-bg-lighter;
+
+$success: hsl(135, 100%, 62%);
+$success-darker: hsl(from $success h s calc(l - 35));
+
+$warning: hsl(46, 100%, 60%);
+$warning-darker: hsl(from $warning h s calc(l - 35));
+
+$danger: hsl(351, 100%, 67%);
+$danger-darker: hsl(from $danger h s calc(l - 25));
