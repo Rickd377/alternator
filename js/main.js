@@ -11,6 +11,7 @@ const progLabel = document.querySelector(".progress-label");
 
 let lastKey = null;
 let allowedKeys = [];
+const allowedKeyList = ["w", "arrowup"];
 
 let mode = "time"; // default
 
@@ -22,6 +23,14 @@ let timeRunning = false;
 let timeEnded = false;
 let timer = null;
 let timeLeft = maxTime;
+
+function createPlaceholder() {
+  const placeholder = document.createElement("span");
+  placeholder.classList.add("output-placeholder");
+  placeholder.innerHTML = `use keys: <kbd>${allowedKeyList[0]}</kbd> + <kbd>${allowedKeyList[1]}</kbd>`;
+  output.appendChild(placeholder);
+}
+createPlaceholder();
 
 navSettings.forEach((el) => {
   el.addEventListener("click", () => {
@@ -48,9 +57,10 @@ document.getElementById("saveSettings").addEventListener("click", () => {
 function showFinishModal() {
   finishModal.style.display = "flex";
 
-  document.getElementById("closeFinishModal").addEventListener("click", () => {
-    finishModal.style.display = "none";
-    resetSession();
+  document.querySelectorAll("#closeFinishModal").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      finishModal.style.display = "none";
+    });
   });
 }
 
@@ -64,7 +74,7 @@ navEls.forEach((el) => {
     
     resetSession();
     
-    progLabel.textContent = mode === "time" ? `${timeLeft}s` : `${currentReps}/${maxReps}`;
+    progLabel.textContent = mode === "time" ? `${timeLeft}s` : `0/${maxReps}`;
     timeOptions.style.display = mode === "time" ? "flex" : "none";
     repOptions.style.display = mode === "reps" ? "flex" : "none";
   });
@@ -75,6 +85,7 @@ function setActive(selector) {
     el.addEventListener("click", () => {
       selector.forEach((item) => item.classList.remove("active"));
       el.classList.add("active");
+      resetSession();
     });
   });
 }
@@ -117,7 +128,7 @@ timeNavEls.forEach((el) => {
   });
 });
 
-progLabel.textContent = mode === "time" ? `${timeLeft}s` : `${currentReps + 1}/${maxReps}`;
+progLabel.textContent = mode === "time" ? `${timeLeft}s` : `0/${maxReps}`;
 
 function resetSession() {
   clearInterval(timer);
@@ -129,6 +140,9 @@ function resetSession() {
 
   output.innerHTML = "";
   output.scrollLeft = 0;
+  output.classList.remove("overflow-left", "overflow-right", "overflow-both");
+
+  createPlaceholder();
 
   if (mode === "time") {
     timeLeft = maxTime;
@@ -139,8 +153,13 @@ function resetSession() {
 }
 
 document.addEventListener("keydown", (e) => {
-  if (mode === "reps" && currentReps >= maxReps) return;
-  if (mode === "time" && timeEnded) return;
+  const key = e.key.toLowerCase();
+
+  if (!allowedKeyList.includes(key)) return;
+  if (["shift", "control", "alt", "meta"].includes(key)) return;
+
+  const placeholder = output.querySelector(".output-placeholder");
+  if (placeholder) placeholder.remove();
 
   if (mode === "time" && !timeRunning) {
     timeRunning = true;
@@ -159,55 +178,25 @@ document.addEventListener("keydown", (e) => {
     }, 1000);
   }
 
-  const map = {
-    " ": "space",
-    arrowup: "up",
-    arrowdown: "down",
-    arrowleft: "left",
-    arrowright: "right"
-  };
+  if (mode === "reps") {
+    if (currentReps >= maxReps) return;
 
-  const key = map[e.key.toLowerCase()] || e.key.toLowerCase();
+    currentReps++;
+    progLabel.textContent = `${currentReps}/${maxReps}`;
 
-  if (["shift", "control", "alt", "meta"].includes(key)) return;
+    if (currentReps >= maxReps) showFinishModal();
+  }
 
   const span = document.createElement("span");
   span.classList.add("key");
+  span.classList.add(key === lastKey ? "incorrect" : "correct");
 
-  const lastEl = output.firstElementChild;
-
-  if (!allowedKeys.includes(key)) {
-    allowedKeys.push(key);
-  }
-
-  if (allowedKeys.length > 2) {
-    span.classList.add("wrong");
-
-    if (lastEl) {
-      lastEl.classList.remove("correct", "incorrect", "wrong");
-      lastEl.classList.add("wrong");
-    }
-
-    allowedKeys = [key];
-  } else if (key === lastKey) {
-    span.classList.add("incorrect");
-  } else {
-    span.classList.add("correct");
-  }
+  if (!allowedKeys.includes(key)) allowedKeys.push(key);
   
   output.prepend(span);
   checkOverflow(output);
 
   lastKey = key;
-
-  if (mode === "reps") {
-    currentReps++;
-    progLabel.textContent = `${currentReps}/${maxReps}`;
-
-    if (currentReps >= maxReps) {
-      showFinishModal();
-    }
-  }
 });
 
 output.addEventListener("scroll", () => {

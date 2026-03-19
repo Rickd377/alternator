@@ -99,17 +99,31 @@
       mask-image: linear-gradient(to right, transparent, hsl(0, 0%, 0%) 20% 80%, transparent);
     }
 
+    .output-placeholder {
+      @include flex(flex-start);
+      gap: $_padding;
+      font-size: .85rem;
+      color: $dark-bg-lighter-3;
+      height: 100%;
+
+      kbd {
+        @include flex;
+        background: $dark-bg-lighter-2;
+        color: $dark-color;
+        font-weight: 400;
+        border-radius: $_inner-inner-radius;
+        padding-inline: calc($_padding / 2);
+        height: 100%;
+        font-family: inherit;
+      }
+    }
+
     .key {
       @include flex;
       height: 100%;
-      font-family: system-ui;
-      font-size: .85rem;
-      font-weight: 600;
       border-radius: $_inner-inner-radius;
       padding: calc($_padding / 2);
       color: $light-color;
-      text-transform: uppercase;
-      user-select: none;
 
       &.correct {
         background: $success;
@@ -117,10 +131,6 @@
 
       &.incorrect {
         background: $warning;
-      }
-
-      &.wrong {
-        background: $danger;
       }
     }
   }
