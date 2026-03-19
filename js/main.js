@@ -4,23 +4,36 @@ const timeOptions = document.querySelector(".time-options");
 const timeNavEls = timeOptions.querySelectorAll("ul li");
 const repOptions = document.querySelector(".repetitions-options");
 const repNavEls = repOptions.querySelectorAll("ul li");
-const modal = document.querySelector(".modal");
+const settingsModal = document.getElementById("settingsModal");
+const finishModal = document.getElementById("finishModal");
 const output = document.querySelector(".output-display");
+const progLabel = document.querySelector(".progress-label");
 
 let lastKey = null;
 let allowedKeys = [];
 
+let mode = "time"; // default
+
+let maxReps = 10; // default
+let currentReps = 0;
+
+let maxTime = 5; // default
+let timeRunning = false;
+let timeEnded = false;
+let timer = null;
+let timeLeft = maxTime;
+
 navSettings.forEach((el) => {
   el.addEventListener("click", () => {
-    modal.style.display = "flex";
+    settingsModal.style.display = "flex";
     navSettings.forEach((item) => item.classList.remove("active"));
     el.classList.add("active");
   });
 });
 
-document.querySelectorAll("#closeModal").forEach((btn) => {
+document.querySelectorAll("#closeSettingsModal").forEach((btn) => {
   btn.addEventListener("click", () => {
-    modal.style.display = "none";
+    settingsModal.style.display = "none";
     navSettings.forEach((item) => item.classList.remove("active"));
   });
 });
@@ -28,9 +41,18 @@ document.querySelectorAll("#closeModal").forEach((btn) => {
 document.getElementById("saveSettings").addEventListener("click", () => {
   // saveSettings();
   
-  modal.style.display = "none";
+  settingsModal.style.display = "none";
   navSettings.forEach((item) => item.classList.remove("active"));
 });
+
+function showFinishModal() {
+  finishModal.style.display = "flex";
+
+  document.getElementById("closeFinishModal").addEventListener("click", () => {
+    finishModal.style.display = "none";
+    resetSession();
+  });
+}
 
 // function saveSettings() {
 
@@ -38,8 +60,13 @@ document.getElementById("saveSettings").addEventListener("click", () => {
 
 navEls.forEach((el) => {
   el.addEventListener("click", () => {
-    timeOptions.style.display = el.classList.contains("time") ? "flex" : "none";
-    repOptions.style.display = el.classList.contains("repetitions") ? "flex" : "none";
+    mode = el.classList.contains("time") ? "time" : "reps";
+    
+    resetSession();
+    
+    progLabel.textContent = mode === "time" ? `${timeLeft}s` : `${currentReps}/${maxReps}`;
+    timeOptions.style.display = mode === "time" ? "flex" : "none";
+    repOptions.style.display = mode === "reps" ? "flex" : "none";
   });
 });
 
@@ -76,7 +103,62 @@ function checkOverflow(el) {
   }
 }
 
+repNavEls.forEach((el) => {
+  el.addEventListener("click", () => {
+    maxReps = Number(el.dataset.reps);
+    resetSession();
+  });
+});
+
+timeNavEls.forEach((el) => {
+  el.addEventListener("click", () => {
+    maxTime = Number(el.dataset.seconds);
+    resetSession();
+  });
+});
+
+progLabel.textContent = mode === "time" ? `${timeLeft}s` : `${currentReps + 1}/${maxReps}`;
+
+function resetSession() {
+  clearInterval(timer);
+  timeRunning = false;
+  timeEnded = false;
+  currentReps = 0;
+  allowedKeys = [];
+  lastKey = null;
+
+  output.innerHTML = "";
+  output.scrollLeft = 0;
+
+  if (mode === "time") {
+    timeLeft = maxTime;
+    progLabel.textContent = `${timeLeft}s`;
+  } else {
+    progLabel.textContent = `${currentReps}/${maxReps}`;
+  }
+}
+
 document.addEventListener("keydown", (e) => {
+  if (mode === "reps" && currentReps >= maxReps) return;
+  if (mode === "time" && timeEnded) return;
+
+  if (mode === "time" && !timeRunning) {
+    timeRunning = true;
+    timeLeft = maxTime;
+    progLabel.textContent = `${timeLeft}s`;
+
+    timer = setInterval(() => {
+      timeLeft--;
+      progLabel.textContent = `${timeLeft}s`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        timeEnded = true;
+        showFinishModal();
+      }
+    }, 1000);
+  }
+
   const map = {
     " ": "space",
     arrowup: "up",
@@ -91,7 +173,6 @@ document.addEventListener("keydown", (e) => {
 
   const span = document.createElement("span");
   span.classList.add("key");
-  span.textContent = key;
 
   const lastEl = output.firstElementChild;
 
@@ -116,7 +197,17 @@ document.addEventListener("keydown", (e) => {
   
   output.prepend(span);
   checkOverflow(output);
+
   lastKey = key;
+
+  if (mode === "reps") {
+    currentReps++;
+    progLabel.textContent = `${currentReps}/${maxReps}`;
+
+    if (currentReps >= maxReps) {
+      showFinishModal();
+    }
+  }
 });
 
 output.addEventListener("scroll", () => {

@@ -19,6 +19,7 @@
     background: $dark-bg-lighter-2;
     border-radius: $_inner-radius;
     padding-block: $_padding;
+    user-select: none;
 
     nav {
       ul {
@@ -36,10 +37,6 @@
         &.active {
           color: $danger;
         }
-
-        i {
-          font-size: .7rem;
-        }
       }
     }
 
@@ -50,6 +47,7 @@
     .line {
       height: 100%;
       width: 5px;
+      flex-shrink: 0;
       border-radius: 99rem;
       background: $dark-bg-lighter;
       border: none;
@@ -62,13 +60,23 @@
     }
   }
 
+  .label-wrapper {
+    @include flex(space-between);
+    width: 100%;
+
+    label {
+      font-size: .85rem;
+      color: $dark-bg-lighter-3;
+    }
+  }
+
   .output-display {
     $_inner-inner-radius: calc($_inner-radius - $_padding);
 
     @include flex(flex-start);
     gap: $_padding;
     width: 100%;
-    height: 50px;
+    height: 40px;
     border: 2px dashed $dark-bg-lighter-2;
     border-radius: $_inner-radius;
     padding: $_padding;
@@ -98,9 +106,10 @@
       font-size: .85rem;
       font-weight: 600;
       border-radius: $_inner-inner-radius;
-      padding: $_padding;
+      padding: calc($_padding / 2);
       color: $light-color;
       text-transform: uppercase;
+      user-select: none;
 
       &.correct {
         background: $success;
