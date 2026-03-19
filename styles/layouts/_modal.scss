@@ -10,6 +10,7 @@
     $_border-radius: 1.5rem;
     $_padding: 1rem;
     $_inner-radius: calc($_border-radius - $_padding);
+    $_inner-inner-radius: calc($_inner-radius - ($_padding / 2));
 
     @include flex(flex-start, flex-start, column);
     gap: $_padding;
@@ -24,7 +25,7 @@
       background: $dark-bg-lighter-2;
     }
 
-    .save-settings-btn {
+    .save-stats-btn {
       background: $success;
       color: $light-color;
     }
@@ -36,10 +37,45 @@
       .close-modal-icon {
         color: $dark-bg-lighter-3;
         cursor: pointer;
+      } 
+    }
+
+    .modal-body {
+      @include flex;
+      width: 100%;
+      flex-direction: column;
+      gap: calc($_padding / 2);
+
+      & > * {
+        width: 100%;
+        border-radius: $_inner-radius;
+      }
+
+      .change-used-keys {
+        @include flex(space-between);
+        padding: $_padding;
+        background: $dark-bg-lighter-2;
+        height: 40px;
+
+        span {
+          @include flex;
+          gap: $_padding;
+          height: 100%;
+          font-size: .85rem;
+          color: $dark-color;
+
+          &:has(kbd) {
+            height: 100%;
+          }
+
+          kbd {
+            font-family: inherit;
+          }
+        }
       }
     }
 
-    .button-wrapper {
+    .modal-footer {
       @include flex(flex-end);
       gap: inherit;
       width: 100%;

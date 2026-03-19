@@ -41,7 +41,7 @@
           </li>
           <li class="repetitions">
             <i class="ph-fill ph-arrow-clockwise"></i>
-            <span>Repetitions</span>
+            <span>repetitions</span>
           </li>
         </ul>
       </nav>
@@ -90,15 +90,25 @@
     </div>
   </div>
 
-  <div class="modal" id="settingsModal">
+  <div class="modal" id="statsModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title">settings</h2>
-        <i id="closeSettingsModal" class="ph-bold ph-x close-modal-icon"></i>
+        <h2 class="modal-title">profile stats</h2>
+        <i id="closeStatsModal" class="ph-bold ph-x close-modal-icon"></i>
       </div>
-      <div class="button-wrapper">
-        <button id="closeSettingsModal" class="close-modal-btn">cancel</button>
-        <button id="saveSettings" class="save-settings-btn">save</button>
+      <div class="modal-body">
+        <div class="change-used-keys">
+          <span>used keys:</span>
+          <span><kbd>w</kbd>+<kbd>arrowup</kbd></span>
+        </div>
+        <div class="change-used-keys"></div>
+        <div class="change-used-keys"></div>
+        <div class="change-used-keys"></div>
+        <div class="change-used-keys"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="closeStatsModal" class="close-modal-btn">cancel</button>
+        <button id="saveStats" class="save-stats-btn">save</button>
       </div>
     </div>
   </div>
@@ -109,7 +119,8 @@
         <h2 class="modal-title">results</h2>
         <i id="closeFinishModal" class="ph-bold ph-x close-modal-icon"></i>
       </div>
-      <div class="button-wrapper">
+      <div class="modal-body"></div>
+      <div class="modal-footer">
         <button id="closeFinishModal" class="close-modal-btn">close</button>
       </div>
     </div>

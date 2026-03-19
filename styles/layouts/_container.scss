@@ -2,6 +2,7 @@
   $_border-radius: 1.5rem;
   $_padding: .5rem;
   $_inner-radius: calc($_border-radius - $_padding);
+  $_inner-inner-radius: calc($_inner-radius - $_padding);
 
   @include flex(flex-start, flex-start, column);
   gap: $_padding;
@@ -71,8 +72,6 @@
   }
 
   .output-display {
-    $_inner-inner-radius: calc($_inner-radius - $_padding);
-
     @include flex(flex-start);
     gap: $_padding;
     width: 100%;
@@ -102,19 +101,17 @@
     .output-placeholder {
       @include flex(flex-start);
       gap: $_padding;
+      height: 100%;
       font-size: .85rem;
       color: $dark-bg-lighter-3;
-      height: 100%;
 
       kbd {
-        @include flex;
-        background: $dark-bg-lighter-2;
-        color: $dark-color;
+        padding: .25rem;
+        font-family: inherit;
         font-weight: 400;
         border-radius: $_inner-inner-radius;
-        padding-inline: calc($_padding / 2);
-        height: 100%;
-        font-family: inherit;
+        background: $dark-bg-lighter-2;
+        color: $dark-color;
       }
     }
 

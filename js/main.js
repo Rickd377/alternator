@@ -4,7 +4,7 @@ const timeOptions = document.querySelector(".time-options");
 const timeNavEls = timeOptions.querySelectorAll("ul li");
 const repOptions = document.querySelector(".repetitions-options");
 const repNavEls = repOptions.querySelectorAll("ul li");
-const settingsModal = document.getElementById("settingsModal");
+const statsModal = document.getElementById("statsModal");
 const finishModal = document.getElementById("finishModal");
 const output = document.querySelector(".output-display");
 const progLabel = document.querySelector(".progress-label");
@@ -13,12 +13,13 @@ let lastKey = null;
 let allowedKeys = [];
 const allowedKeyList = ["w", "arrowup"];
 
-let mode = "time"; // default
+let mode = "time"; // html default
+let sessionEnded = false;
 
-let maxReps = 10; // default
+let maxReps = 10; // html default
 let currentReps = 0;
 
-let maxTime = 5; // default
+let maxTime = 5; // html default
 let timeRunning = false;
 let timeEnded = false;
 let timer = null;
@@ -34,23 +35,23 @@ createPlaceholder();
 
 navSettings.forEach((el) => {
   el.addEventListener("click", () => {
-    settingsModal.style.display = "flex";
+    statsModal.style.display = "flex";
     navSettings.forEach((item) => item.classList.remove("active"));
     el.classList.add("active");
   });
 });
 
-document.querySelectorAll("#closeSettingsModal").forEach((btn) => {
+document.querySelectorAll("#closeStatsModal").forEach((btn) => {
   btn.addEventListener("click", () => {
-    settingsModal.style.display = "none";
+    statsModal.style.display = "none";
     navSettings.forEach((item) => item.classList.remove("active"));
   });
 });
 
-document.getElementById("saveSettings").addEventListener("click", () => {
+document.getElementById("saveStats").addEventListener("click", () => {
   // saveSettings();
   
-  settingsModal.style.display = "none";
+  statsModal.style.display = "none";
   navSettings.forEach((item) => item.classList.remove("active"));
 });
 
@@ -134,6 +135,7 @@ function resetSession() {
   clearInterval(timer);
   timeRunning = false;
   timeEnded = false;
+  sessionEnded = false;
   currentReps = 0;
   allowedKeys = [];
   lastKey = null;
@@ -153,6 +155,7 @@ function resetSession() {
 }
 
 document.addEventListener("keydown", (e) => {
+  if (sessionEnded) return;
   const key = e.key.toLowerCase();
 
   if (!allowedKeyList.includes(key)) return;
@@ -173,6 +176,7 @@ document.addEventListener("keydown", (e) => {
       if (timeLeft <= 0) {
         clearInterval(timer);
         timeEnded = true;
+        sessionEnded = true;
         showFinishModal();
       }
     }, 1000);
@@ -184,7 +188,10 @@ document.addEventListener("keydown", (e) => {
     currentReps++;
     progLabel.textContent = `${currentReps}/${maxReps}`;
 
-    if (currentReps >= maxReps) showFinishModal();
+    if (currentReps >= maxReps) {
+      sessionEnded = true;
+      showFinishModal();
+    }
   }
 
   const span = document.createElement("span");
