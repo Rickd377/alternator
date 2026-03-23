@@ -118,7 +118,7 @@
     .key {
       @include flex;
       height: 100%;
-      border-radius: $_inner-inner-radius;
+      border-radius: 99rem;
       padding: calc($_padding / 2);
       color: $light-color;
 

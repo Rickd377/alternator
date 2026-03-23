@@ -25,6 +25,71 @@ let timeEnded = false;
 let timer = null;
 let timeLeft = maxTime;
 
+// ======= statsModal click events =======
+
+function showStatsModal(activeBtn) {
+  navSettings.forEach((item) => item.classList.remove("active"));
+  if (activeBtn) activeBtn.classList.add("active");
+  statsModal.style.display = "flex";
+}
+
+document.getElementById("saveStatsBtn").addEventListener("click", () => {
+  saveStats();
+  closeStatsModal();
+});
+
+function closeStatsModal() {
+  statsModal.style.display = "none";
+  navSettings.forEach((item) => item.classList.remove("active"));
+}
+
+document.querySelectorAll("#closeStatsModal").forEach((btn) => {
+  btn.addEventListener("click", closeStatsModal);
+});
+
+// ======= finishModal click events =======
+
+function showFinishModal() {
+  const keysPressed = document.querySelector(".keys-pressed");
+  finishModal.style.display = "flex";
+  keysPressed.textContent = output.childElementCount + 1;
+  calcAccuracy();
+}
+
+function closeFinishModal() {
+  finishModal.style.display = "none";
+}
+
+document.getElementById("restartBtn").addEventListener("click", () => {
+  closeFinishModal();
+  resetSession();
+});
+
+document.querySelectorAll("#closeFinishModal").forEach((btn) => {
+  btn.addEventListener("click", closeFinishModal);
+});
+
+// ======= statsModal functions =======
+// WIP
+function saveStats() {
+  console.log("Stats saved");
+}
+
+// ======= finishModal functions =======
+
+function calcAccuracy() {
+  const accuracy = document.querySelector(".sesh-accuracy");
+
+  const correctAmt = output.querySelectorAll(":scope > .correct").length;
+  const incorrectAmt = output.querySelectorAll(":scope > .incorrect").length;
+  const total = correctAmt + incorrectAmt;
+  const percentage = total === 0 ? 0 : (correctAmt / total) * 100;
+
+  accuracy.textContent = percentage.toFixed(1) + "%";
+}
+
+// ======= general functions =======
+
 function createPlaceholder() {
   const placeholder = document.createElement("span");
   placeholder.classList.add("output-placeholder");
@@ -33,41 +98,13 @@ function createPlaceholder() {
 }
 createPlaceholder();
 
-navSettings.forEach((el) => {
-  el.addEventListener("click", () => {
-    statsModal.style.display = "flex";
-    navSettings.forEach((item) => item.classList.remove("active"));
-    el.classList.add("active");
-  });
-});
+document.querySelector(".keybinds-used").innerHTML = `<kbd>${allowedKeyList[0]}</kbd> + <kbd>${allowedKeyList[1]}</kbd>`;
 
-document.querySelectorAll("#closeStatsModal").forEach((btn) => {
+navSettings.forEach((btn) => {
   btn.addEventListener("click", () => {
-    statsModal.style.display = "none";
-    navSettings.forEach((item) => item.classList.remove("active"));
+    showStatsModal(btn);
   });
 });
-
-document.getElementById("saveStats").addEventListener("click", () => {
-  // saveSettings();
-  
-  statsModal.style.display = "none";
-  navSettings.forEach((item) => item.classList.remove("active"));
-});
-
-function showFinishModal() {
-  finishModal.style.display = "flex";
-
-  document.querySelectorAll("#closeFinishModal").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      finishModal.style.display = "none";
-    });
-  });
-}
-
-// function saveSettings() {
-
-// }
 
 navEls.forEach((el) => {
   el.addEventListener("click", () => {
@@ -115,6 +152,10 @@ function checkOverflow(el) {
   }
 }
 
+output.addEventListener("scroll", () => {
+  checkOverflow(output);
+});
+
 repNavEls.forEach((el) => {
   el.addEventListener("click", () => {
     maxReps = Number(el.dataset.reps);
@@ -153,6 +194,8 @@ function resetSession() {
     progLabel.textContent = `${currentReps}/${maxReps}`;
   }
 }
+
+// ======= keydown event =======
 
 document.addEventListener("keydown", (e) => {
   if (sessionEnded) return;
@@ -204,8 +247,4 @@ document.addEventListener("keydown", (e) => {
   checkOverflow(output);
 
   lastKey = key;
-});
-
-output.addEventListener("scroll", () => {
-  checkOverflow(output);
 });

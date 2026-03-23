@@ -97,18 +97,18 @@
         <i id="closeStatsModal" class="ph-bold ph-x close-modal-icon"></i>
       </div>
       <div class="modal-body">
-        <div class="change-used-keys">
-          <span>used keys:</span>
-          <span><kbd>w</kbd>+<kbd>arrowup</kbd></span>
+        <div>
+          <span>current used keys:</span>
+          <span class="keybinds-used"></span>
         </div>
-        <div class="change-used-keys"></div>
-        <div class="change-used-keys"></div>
-        <div class="change-used-keys"></div>
-        <div class="change-used-keys"></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
       </div>
       <div class="modal-footer">
         <button id="closeStatsModal" class="close-modal-btn">cancel</button>
-        <button id="saveStats" class="save-stats-btn">save</button>
+        <button id="saveStatsBtn" class="save-stats-btn">save</button>
       </div>
     </div>
   </div>
@@ -119,9 +119,19 @@
         <h2 class="modal-title">results</h2>
         <i id="closeFinishModal" class="ph-bold ph-x close-modal-icon"></i>
       </div>
-      <div class="modal-body"></div>
+      <div class="modal-body">
+        <div>
+          <span>keys pressed:</span>
+          <span class="keys-pressed"></span>
+        </div>
+        <div>
+          <span>accuracy:</span>
+          <span class="sesh-accuracy"></span>
+        </div>
+      </div>
       <div class="modal-footer">
         <button id="closeFinishModal" class="close-modal-btn">close</button>
+        <button id="restartBtn" class="restart-btn">restart</button>
       </div>
     </div>
   </div>
