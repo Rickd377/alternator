@@ -1,3 +1,5 @@
+// ======= variables =======
+
 const navEls = document.querySelectorAll(".nav-selections ul li");
 const navSettings = document.querySelectorAll(".nav-settings ul li");
 const timeOptions = document.querySelector(".time-options");
@@ -8,6 +10,8 @@ const statsModal = document.getElementById("statsModal");
 const finishModal = document.getElementById("finishModal");
 const output = document.querySelector(".output-display");
 const progLabel = document.querySelector(".progress-label");
+const canvas = document.querySelector(".live-graph");
+const ctx = canvas.getContext("2d");
 
 let lastKey = null;
 let allowedKeys = [];
@@ -24,6 +28,60 @@ let timeRunning = false;
 let timeEnded = false;
 let timer = null;
 let timeLeft = maxTime;
+let startTime = null;
+
+let graphPoints = [];
+let graphRunning = false;
+let isHolding = false;
+let graphY = 0; // middle
+let graphSpeed = 5; // changable speed
+let canvasWidth = 0;
+let canvasHeight = 0;
+let animationFrame;
+let lastTime = 0;
+let playerX = 0;
+const dotRadius = 12.5;
+const canvasPadding = 10;
+
+// ======= load localStorage =======
+
+function loadSettings() {
+  const savedMode = localStorage.getItem("mode");
+  const savedTime = localStorage.getItem("maxTime");
+  const savedReps = localStorage.getItem("maxReps");
+
+  if (savedMode) mode = savedMode;
+  if (savedTime) maxTime = Number(savedTime);
+  if (savedReps) maxReps = Number(savedReps);
+}
+loadSettings();
+
+// ======= apply localStorage =======
+
+function applyActiveStates() {
+  navEls.forEach((el) => {
+    el.classList.toggle(
+      "active",
+      (mode === "time" && el.classList.contains("time")) ||
+      (mode === "reps" && el.classList.contains("repetitions"))
+    );
+  });
+
+  timeNavEls.forEach((el) => {
+    el.classList.toggle("active", Number(el.dataset.seconds) === maxTime);
+  });
+
+  repNavEls.forEach((el) => {
+    el.classList.toggle("active", Number(el.dataset.reps) === maxReps);
+  });
+
+  timeOptions.style.display = mode === "time" ? "flex" : "none";
+  repOptions.style.display = mode === "reps" ? "flex" : "none";
+
+  progLabel.textContent =
+    mode === "time" ? `${timeLeft}s` : `0/${maxReps}`;
+}
+applyActiveStates();
 
 // ======= statsModal click events =======
 
@@ -50,10 +108,22 @@ document.querySelectorAll("#closeStatsModal").forEach((btn) => {
 // ======= finishModal click events =======
 
 function showFinishModal() {
-  const keysPressed = document.querySelector(".keys-pressed");
-  finishModal.style.display = "flex";
+  const keysPressed = document.querySelector(".sesh-keys-pressed");
+  const speedEl = document.querySelector(".sesh-speed");
+
   keysPressed.textContent = output.childElementCount + 1;
+
+  const duration = (Date.now() - startTime) / 1000;
+  speedEl.textContent = duration.toFixed(2) + "s";
+
   calcAccuracy();
+
+  finishModal.style.display = "flex";
+  if (mode === "time") {
+    speedEl.closest("div").style.display = "none";
+  } else if (mode === "reps") {
+    keysPressed.closest("div").style.display = "none";
+  }
 }
 
 function closeFinishModal() {
@@ -106,18 +176,6 @@ navSettings.forEach((btn) => {
   });
 });
 
-navEls.forEach((el) => {
-  el.addEventListener("click", () => {
-    mode = el.classList.contains("time") ? "time" : "reps";
-    
-    resetSession();
-    
-    progLabel.textContent = mode === "time" ? `${timeLeft}s` : `0/${maxReps}`;
-    timeOptions.style.display = mode === "time" ? "flex" : "none";
-    repOptions.style.display = mode === "reps" ? "flex" : "none";
-  });
-});
-
 function setActive(selector) {
   selector.forEach((el) => {
     el.addEventListener("click", () => {
@@ -156,9 +214,24 @@ output.addEventListener("scroll", () => {
   checkOverflow(output);
 });
 
+navEls.forEach((el) => {
+  el.addEventListener("click", () => {
+    mode = el.classList.contains("time") ? "time" : "reps";
+
+    localStorage.setItem("mode", mode);
+    
+    resetSession();
+    
+    progLabel.textContent = mode === "time" ? `${timeLeft}s` : `0/${maxReps}`;
+    timeOptions.style.display = mode === "time" ? "flex" : "none";
+    repOptions.style.display = mode === "reps" ? "flex" : "none";
+  });
+});
+
 repNavEls.forEach((el) => {
   el.addEventListener("click", () => {
     maxReps = Number(el.dataset.reps);
+    localStorage.setItem("maxReps", maxReps);
     resetSession();
   });
 });
@@ -166,20 +239,107 @@ repNavEls.forEach((el) => {
 timeNavEls.forEach((el) => {
   el.addEventListener("click", () => {
     maxTime = Number(el.dataset.seconds);
+    localStorage.setItem("maxTime", maxTime);
     resetSession();
   });
 });
 
 progLabel.textContent = mode === "time" ? `${timeLeft}s` : `0/${maxReps}`;
 
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const width = rect.width;
+  const height = Math.max(0, 150 - canvasPadding * 2);
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  canvasWidth = width;
+  canvasHeight = height;
+  playerX = canvasWidth * 0.2;
+  graphY = clampY(canvasHeight / 2);
+}
+
+window.addEventListener("load", resizeCanvas);
+window.addEventListener("resize", resizeCanvas);
+
+function clampY(y) {
+  if (y < canvasPadding) return canvasPadding;
+  if (y > canvasHeight - canvasPadding) return canvasHeight - canvasPadding;
+  return y;
+}
+
+function draw(time) {
+  if (sessionEnded || !graphRunning) return;
+  animationFrame = requestAnimationFrame(draw);
+
+  if (!lastTime) lastTime = time;
+  const delta = (time - lastTime) / 16.67;
+  lastTime = time;
+
+  graphY = clampY(graphY + (isHolding ? -1 : 1) * graphSpeed * delta);
+
+  graphPoints.push({ x: playerX, y: graphY });
+  graphPoints.forEach((p) => {
+    p.x -= graphSpeed * delta;
+    p.y = clampY(p.y);
+  });
+  graphPoints = graphPoints.filter((p) => p.x > 0);
+
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  ctx.beginPath();
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = "hsl(351, 100%, 67%)";
+  ctx.shadowColor = "hsl(351, 100%, 85%)";
+  ctx.shadowBlur = 5;
+
+  if (graphPoints.length > 0) {
+    let prev = graphPoints[0];
+    ctx.moveTo(prev.x, prev.y);
+
+    for (let i = 1; i < graphPoints.length; i++) {
+      const point = graphPoints[i];
+      ctx.lineTo(point.x, point.y);
+    }
+  }
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.fillStyle = "hsl(351, 100%, 67%)";
+  ctx.arc(playerX, graphY, dotRadius, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function startGraph() {
+  if (graphRunning) return;
+  graphRunning = true;
+  lastTime = 0;
+  animationFrame = requestAnimationFrame(draw);
+}
+
+function stopGraph() {
+  cancelAnimationFrame(animationFrame);
+  graphRunning = false;
+  animationFrame = null;
+}
+
 function resetSession() {
   clearInterval(timer);
+  stopGraph();
   timeRunning = false;
   timeEnded = false;
   sessionEnded = false;
   currentReps = 0;
   allowedKeys = [];
+  graphPoints = [];
   lastKey = null;
+  startTime = null;
+
+  graphY = clampY(canvasHeight / 2);
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
   output.innerHTML = "";
   output.scrollLeft = 0;
@@ -199,16 +359,23 @@ function resetSession() {
 
 document.addEventListener("keydown", (e) => {
   if (sessionEnded) return;
+  if (e.repeat) return;
   const key = e.key.toLowerCase();
 
   if (!allowedKeyList.includes(key)) return;
   if (["shift", "control", "alt", "meta"].includes(key)) return;
+
+  if (!isHolding) {
+    isHolding = true;
+    startGraph();
+  }
 
   const placeholder = output.querySelector(".output-placeholder");
   if (placeholder) placeholder.remove();
 
   if (mode === "time" && !timeRunning) {
     timeRunning = true;
+    startTime = Date.now();
     timeLeft = maxTime;
     progLabel.textContent = `${timeLeft}s`;
 
@@ -220,6 +387,7 @@ document.addEventListener("keydown", (e) => {
         clearInterval(timer);
         timeEnded = true;
         sessionEnded = true;
+        stopGraph();
         showFinishModal();
       }
     }, 1000);
@@ -228,11 +396,16 @@ document.addEventListener("keydown", (e) => {
   if (mode === "reps") {
     if (currentReps >= maxReps) return;
 
+    if (currentReps === 0) {
+      startTime = Date.now();
+    }
+
     currentReps++;
     progLabel.textContent = `${currentReps}/${maxReps}`;
 
     if (currentReps >= maxReps) {
       sessionEnded = true;
+      stopGraph();
       showFinishModal();
     }
   }
@@ -247,4 +420,13 @@ document.addEventListener("keydown", (e) => {
   checkOverflow(output);
 
   lastKey = key;
+});
+
+// ======= keyup event =======
+
+document.addEventListener("keyup", (e) => {
+  const key = e.key.toLowerCase();
+  if (!allowedKeyList.includes(key)) return;
+
+  isHolding = false;
 });

@@ -71,6 +71,11 @@
     }
   }
 
+  canvas {
+    border: 2px solid $danger;
+    border-radius: $_inner-radius
+  }
+
   .output-display {
     @include flex(flex-start);
     gap: $_padding;
